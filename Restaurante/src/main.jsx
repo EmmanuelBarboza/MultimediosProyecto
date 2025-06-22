@@ -9,7 +9,7 @@ import App from './App.jsx'
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
   <BrowserRouter> {/* Esto es lo del router que pide creo */}
-    <App /> HOLA
+    <App /> 
   </BrowserRouter>
   </React.StrictMode>,
 )
