@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost/vista/API/';
+const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API';
 const obtenerAPI = 'ingredientes.php';
 const agregarAPI = 'ingredientes_insertar.php';
 const actualizarAPI = 'ingredientes_actualizar.php';

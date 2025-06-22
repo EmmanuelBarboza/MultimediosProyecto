@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { obtenerPlatillos, agregarPlatillo, eliminarPlatillo } from '../../services/platilloService';
 import { obtenerCategorias } from '../../services/categoriaService';
 
-export function Platillo() {
+export default function Platillo() {
   const [platillos, setPlatillos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [nuevoPlatillo, setNuevoPlatillo] = useState({

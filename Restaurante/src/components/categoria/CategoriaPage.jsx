@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { obtenerCategorias, agregarCategoria, eliminarCategoria } from '../../services/categoriaService';
 
-export function Categoria() {
+export default function Categoria() {
   const [categorias, setCategorias] = useState([]);
   const [nuevaCategoria, setNuevaCategoria] = useState({
     nombre_categoria: '',
