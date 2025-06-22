@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+/*import { useEffect, useState } from 'react';
 import { obtenerCategorias, agregarCategoria, eliminarCategoria } from '../../services/categoriaService';
 
 export function Categoria() {
