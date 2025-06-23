@@ -1,166 +1,108 @@
 import { useEffect, useState } from 'react';
-import { obtenerPlatillos, agregarPlatillo, eliminarPlatillo } from '../../services/platilloService';
-import { obtenerCategorias } from '../../services/categoriaService';
+import { 
+  obtenerPlatillos,
+  eliminarPlatillo 
+} from '../../services/platilloService';
 
-export default function Platillo() {
+const PlatilloPage = () => {
   const [platillos, setPlatillos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [nuevoPlatillo, setNuevoPlatillo] = useState({
-    nombre_platillo: '',
-    descripcion: '',
-    precio: 0,
-    id_categoria: '',
-    estado: 1,
-    imagen_url: ''
-  });
-  const [error, setError] = useState(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    cargarDatos();
+    cargarPlatillos();
   }, []);
 
-  const cargarDatos = async () => {
+  const cargarPlatillos = async () => {
     try {
-      const [platillosRes, categoriasRes] = await Promise.all([
-        obtenerPlatillos(),
-        obtenerCategorias()
-      ]);
-      setPlatillos(platillosRes.data);
-      setCategorias(categoriasRes.data);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNuevoPlatillo({
-      ...nuevoPlatillo,
-      [name]: name === 'precio' ? parseFloat(value) : value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await agregarPlatillo(nuevoPlatillo);
-      setNuevoPlatillo({
-        nombre_platillo: '',
-        descripcion: '',
-        precio: 0,
-        id_categoria: '',
-        estado: 1,
-        imagen_url: ''
-      });
-      cargarDatos();
-    } catch (err) {
-      setError(err.message);
+      const { data } = await obtenerPlatillos();
+      setPlatillos(data);
+      setCargando(false);
+    } catch (error) {
+      console.error('Error al cargar platillos:', error);
+      setCargando(false);
     }
   };
 
   const handleEliminar = async (id) => {
-    try {
-      await eliminarPlatillo(id);
-      cargarDatos();
-    } catch (err) {
-      setError(err.message);
+    if (confirm('¿Estás seguro de eliminar este platillo?')) {
+      try {
+        await eliminarPlatillo(id);
+        cargarPlatillos(); // Recargar la lista
+      } catch (error) {
+        console.error('Error al eliminar platillo:', error);
+      }
     }
   };
 
   return (
-    <div className="platillo-container">
-      <h2>Gestión de Platillos</h2>
-      
-      {error && <div className="error">{error}</div>}
+    <div className="container mt-4">
+      <h2>Listado de Platillos</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nombre:</label>
-          <input
-            type="text"
-            name="nombre_platillo"
-            value={nuevoPlatillo.nombre_platillo}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Descripción:</label>
-          <textarea
-            name="descripcion"
-            value={nuevoPlatillo.descripcion}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label>Precio:</label>
-          <input
-            type="number"
-            name="precio"
-            value={nuevoPlatillo.precio}
-            onChange={handleInputChange}
-            step="0.01"
-            min="0"
-            required
-          />
-        </div>
-        <div>
-          <label>Categoría:</label>
-          <select
-            name="id_categoria"
-            value={nuevoPlatillo.id_categoria}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Seleccione una categoría</option>
-            {categorias.map(cat => (
-              <option key={cat.id_categoria} value={cat.id_categoria}>
-                {cat.nombre_categoria}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Estado:</label>
-          <select
-            name="estado"
-            value={nuevoPlatillo.estado}
-            onChange={handleInputChange}
-          >
-            <option value={1}>Activo</option>
-            <option value={0}>Inactivo</option>
-          </select>
-        </div>
-        <div>
-          <label>URL de Imagen:</label>
-          <input
-            type="text"
-            name="imagen_url"
-            value={nuevoPlatillo.imagen_url}
-            onChange={handleInputChange}
-          />
-        </div>
-        <button type="submit">Agregar Platillo</button>
-      </form>
-
-      <div className="lista-platillos">
-        <h3>Lista de Platillos</h3>
-        <ul>
-          {platillos.map(plat => (
-            <li key={plat.id_platillo}>
-              <div>
-                <strong>{plat.nombre_platillo}</strong>
-                <p>{plat.descripcion}</p>
-                <p>Precio: ${plat.precio.toFixed(2)}</p>
-                <p>Categoría: {categorias.find(c => c.id_categoria === plat.id_categoria)?.nombre_categoria}</p>
-                <p>Estado: {plat.estado ? 'Activo' : 'Inactivo'}</p>
-                {plat.imagen_url && <img src={plat.imagen_url} alt={plat.nombre_platillo} width="100" />}
-              </div>
-              <button onClick={() => handleEliminar(plat.id_platillo)}>Eliminar</button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {cargando ? (
+        <div className="alert alert-info">Cargando...</div>
+      ) : (
+        <table className="table table-bordered table-striped">
+          <thead className="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Categoría</th>
+              <th>Estado</th>
+              <th>Imagen</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {platillos.length > 0 ? (
+              platillos.map((item) => (
+                <tr key={item.id_platillo}>
+                  <td>{item.id_platillo}</td>
+                  <td>{item.nombre_platillo}</td>
+                  <td>{item.descripcion}</td>
+                  <td>${parseFloat(item.precio).toFixed(2)}</td>
+                  <td>{item.id_categoria}</td>
+                  <td>
+                    <span className={`badge ${item.estado === '1' ? 'bg-success' : 'bg-secondary'}`}>
+                      {item.estado === '1' ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>
+                    {item.imagen_url && (
+                      <img 
+                        src={item.imagen_url} 
+                        alt={item.nombre_platillo} 
+                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                        className="img-thumbnail"
+                      />
+                    )}
+                  </td>
+                  <td>
+                    <button className="btn btn-warning btn-sm me-2">
+                      Editar
+                    </button>
+                    <button 
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleEliminar(item.id_platillo)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="text-center">
+                  No hay platillos registrados
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
     </div>
   );
-}
+};
+
+export default PlatilloPage;

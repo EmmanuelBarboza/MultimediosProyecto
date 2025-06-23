@@ -1,94 +1,60 @@
 import { useEffect, useState } from 'react';
-import { obtenerCategorias, agregarCategoria, eliminarCategoria } from '../../services/categoriaService';
+import { obtenerCategorias } from '../../services/categoriaService';
 
-export default function Categoria() {
+const CategoriaPage = () => {
   const [categorias, setCategorias] = useState([]);
-  const [nuevaCategoria, setNuevaCategoria] = useState({
-    nombre_categoria: '',
-    descripcion: ''
-  });
-  const [error, setError] = useState(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    cargarCategorias();
+    obtenerCategorias()
+      .then((respuesta) => {
+        console.log(respuesta.data); // Verifica la estructura de respuesta
+        setCategorias(respuesta.data); // Asume que respuesta.data es el array directo
+        setCargando(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar categorías:', error);
+        setCargando(false);
+      });
   }, []);
 
-  const cargarCategorias = async () => {
-    try {
-      const response = await obtenerCategorias();
-      setCategorias(response.data);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setNuevaCategoria({
-      ...nuevaCategoria,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await agregarCategoria(nuevaCategoria);
-      setNuevaCategoria({ nombre_categoria: '', descripcion: '' });
-      cargarCategorias();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleEliminar = async (id) => {
-    try {
-      await eliminarCategoria(id);
-      cargarCategorias();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   return (
-    <div className="categoria-container">
-      <h2>Gestión de Categorías</h2>
-      
-      {error && <div className="error">{error}</div>}
+    <div className="container mt-4">
+      <h2>Listado de Categorías</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nombre:</label>
-          <input
-            type="text"
-            name="nombre_categoria"
-            value={nuevaCategoria.nombre_categoria}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Descripción:</label>
-          <textarea
-            name="descripcion"
-            value={nuevaCategoria.descripcion}
-            onChange={handleInputChange}
-          />
-        </div>
-        <button type="submit">Agregar Categoría</button>
-      </form>
-
-      <div className="lista-categorias">
-        <h3>Lista de Categorías</h3>
-        <ul>
-          {categorias.map(cat => (
-            <li key={cat.id_categoria}>
-              <strong>{cat.nombre_categoria}</strong>
-              <p>{cat.descripcion}</p>
-              <button onClick={() => handleEliminar(cat.id_categoria)}>Eliminar</button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {cargando ? (
+        <p>Cargando...</p>
+      ) : (
+        <table className="table table-bordered">
+          <thead className="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categorias.map((item) => (
+              <tr key={item.id_categoria}>
+                <td>{item.id_categoria}</td>
+                <td>{item.nombre_categoria}</td>
+                <td>{item.descripcion}</td>
+                <td>
+                  <button className="btn btn-warning btn-sm me-2">
+                    Editar
+                  </button>
+                  <button className="btn btn-danger btn-sm">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
-}
+};
+
+export default CategoriaPage;

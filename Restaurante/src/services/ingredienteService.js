@@ -15,3 +15,5 @@ export const actualizarIngrediente = (datos) =>
 
 export const eliminarIngrediente = (id) =>
   axios.post(`${API_URL}${eliminarAPI}`, { id_ingrediente: id });
+
+
