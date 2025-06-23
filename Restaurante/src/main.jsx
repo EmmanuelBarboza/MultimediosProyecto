@@ -6,10 +6,11 @@ import './index.css'
 import App from './App.jsx'
 
 
-createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-  <BrowserRouter> {/* Esto es lo del router que pide creo */}
-    <App /> 
-  </BrowserRouter>
+    {/* Este es el ÚNICO BrowserRouter que debe haber en tu aplicación */}
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
-)
+);
