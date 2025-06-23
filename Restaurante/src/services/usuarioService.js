@@ -1,18 +1,29 @@
+
 import axios from 'axios';
 
-const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';//cambiarlo segun donde tengan guardado el proyecto
-const obtenerAPI = 'usuarios.php';
-const agregarAPI = 'platillos_insertar.php';
-const actualizarAPI = 'platillos_actualizar.php';
-const eliminarAPI = 'platillos_eliminar.php';
+const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';
+const usuarioEndpoint = 'usuarios.php'; 
 
-export const obtenerUsuarios = () => axios.get(`${API_URL}${obtenerAPI}`);
+export const obtenerUsuarios = () => {
+    return axios.get(`${API_URL}${usuarioEndpoint}`);
+};
 
-export const agregarUsuarios = (datos) =>
-  axios.post(`${API_URL}${obtenerAPI}`, datos);
+// Para AGREGAR (POST): Los datos del nuevo usuario en el cuerpo.
+export const agregarUsuarios = (datos) => {
+    return axios.post(`${API_URL}${usuarioEndpoint}`, datos);
+};
 
-export const actualizarUsuarios = (datos) =>
-  axios.post(`${API_URL}${obtenerAPI}`, datos);
+// Para ACTUALIZAR (PUT): El ID en la URL y los datos del usuario en el cuerpo.
+export const actualizarUsuarios = (id_usuario, datos) => {
+    return axios.put(`${API_URL}${usuarioEndpoint}?id_usuario=${id_usuario}`, datos);
+};
 
-export const eliminarUsuarios = (id) =>
-  axios.post(`${API_URL}${obtenerAPI}`, { id_usuario: id });
+// Para ELIMINAR (DELETE): El ID en la URL.
+export const eliminarUsuarios = (id_usuario) => {
+    return axios.delete(`${API_URL}${usuarioEndpoint}?id_usuario=${id_usuario}`);
+};
+
+// (Opcional) Para obtener un usuario por ID (si tu UI lo necesita en el futuro)
+export const obtenerUsuarioPorId = (id_usuario) => {
+    return axios.get(`${API_URL}${usuarioEndpoint}?id_usuario=${id_usuario}`);
+};
