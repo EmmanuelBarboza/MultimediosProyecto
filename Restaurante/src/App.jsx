@@ -1,4 +1,3 @@
-
 import React from 'react'; 
 import './App.css'; 
 
@@ -7,9 +6,7 @@ import { Routes, Route, Link, NavLink } from 'react-router-dom';
 // Importar los componentes de página
 import UsuarioPage from './components/usuario/UsuarioPage';
 import CategoriaPage from './components/categoria/CategoriaPage';
-
-// import IngredientePage from './components/ingrediente/IngredientePage';
-// import PlatilloPage from './components/platillo/PlatilloPage';
+import IngredientePage from './components/ingrediente/IngredientePage';
 
 function App() {
   return (
@@ -57,7 +54,16 @@ function App() {
                   Categorías
                 </NavLink>
               </li>
-        
+              <li className="nav-item">
+                <NavLink 
+                  className={({ isActive }) => 
+                    isActive ? "nav-link active" : "nav-link"
+                  } 
+                  to="/ingredientes"
+                >
+                  Ingredientes
+                </NavLink>
+              </li>
             </ul>
           </div>
         </div>
@@ -72,6 +78,7 @@ function App() {
           {/* Rutas específicas para cada sección */}
           <Route path="/usuarios" element={<UsuarioPage />} />
           <Route path="/categorias" element={<CategoriaPage />} />
+          <Route path="/ingredientes" element={<IngredientePage />} />
           {/* Ruta 404 (para URLs no coincidentes) */}
           <Route path="*" element={
             <div className="alert alert-warning text-center" role="alert">

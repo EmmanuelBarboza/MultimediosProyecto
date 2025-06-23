@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost/Grupo3/Grupo3_Multimedios/vista/API/';//cambiarlo segun donde tengan guardado el proyecto
+const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';//cambiarlo segun donde tengan guardado el proyecto
 const obtenerAPI = 'categorias.php';
 const agregarAPI = 'categorias_insertar.php';
 const actualizarAPI = 'categorias_actualizar.php';
