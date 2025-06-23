@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost/GrGrupo3_Multimedios/vista/API/';
+const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';
 const usuarioEndpoint = 'usuarios.php'; 
 
 export const obtenerUsuarios = () => {

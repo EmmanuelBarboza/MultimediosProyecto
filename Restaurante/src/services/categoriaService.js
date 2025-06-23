@@ -1,19 +1,28 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/'; // Misma base
-const obtenerAPI = 'categorias.php';
-const agregarAPI = 'categorias_insertar.php'; 
-const actualizarAPI = 'categorias_actualizar.php';
-const eliminarAPI = 'categorias_eliminar.php';
+const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';
+const categoriaEndpoint = 'categorias.php'; 
 
-export const obtenerCategorias = () => 
-  axios.get(`${API_URL}${obtenerAPI}`);
+export const obtenerCategorias = () => {
+    return axios.get(`${API_URL}${categoriaEndpoint}`);
+};
 
-export const agregarCategoria = (datos) =>
-  axios.post(`${API_URL}${agregarAPI}`, datos);
+// Para AGREGAR (POST): Los datos de la nueva categoría en el cuerpo
+export const agregarCategoria = (datos) => {
+    return axios.post(`${API_URL}${categoriaEndpoint}`, datos);
+};
 
-export const actualizarCategoria = (datos) =>
-  axios.post(`${API_URL}${actualizarAPI}`, datos);
+// Para ACTUALIZAR (PUT): El ID en la URL y los datos de la categoría en el cuerpo
+export const actualizarCategoria = (id_categoria, datos) => {
+    return axios.put(`${API_URL}${categoriaEndpoint}?id_categoria=${id_categoria}`, datos);
+};
 
-export const eliminarCategoria = (id) =>
-  axios.post(`${API_URL}${eliminarAPI}`, { id_categoria: id });
+// Para ELIMINAR (DELETE): El ID en la URL
+export const eliminarCategoria = (id_categoria) => {
+    return axios.delete(`${API_URL}${categoriaEndpoint}?id_categoria=${id_categoria}`);
+};
+
+// (Opcional) Para obtener una categoría por ID
+export const obtenerCategoriaPorId = (id_categoria) => {
+    return axios.get(`${API_URL}${categoriaEndpoint}?id_categoria=${id_categoria}`);
+};
