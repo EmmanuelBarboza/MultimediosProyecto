@@ -21,8 +21,7 @@ const PlatilloPage = () => {
     descripcion: '',
     precio: '',
     id_categoria: '',
-    estado: '1', // 1 para activo, 0 para inactivo
-    imagen_url: ''
+    estado: '1' // 1 para activo, 0 para inactivo
   });
 
   // Cargar platillos
@@ -53,8 +52,7 @@ const PlatilloPage = () => {
       descripcion: '',
       precio: '',
       id_categoria: '',
-      estado: '1',
-      imagen_url: ''
+      estado: '1'
     });
     setShowModal(true);
   };
@@ -68,8 +66,7 @@ const PlatilloPage = () => {
         descripcion: data.descripcion,
         precio: data.precio,
         id_categoria: data.id_categoria,
-        estado: data.estado.toString(), // Asegurar que es string para el select
-        imagen_url: data.imagen_url || ''
+        estado: data.estado.toString() // Asegurar que es string para el select
       });
       setIsEditing(true);
       setShowModal(true);
@@ -144,7 +141,6 @@ const PlatilloPage = () => {
               <th>Precio</th>
               <th>Categoría</th>
               <th>Estado</th>
-              <th>Imagen</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -161,16 +157,6 @@ const PlatilloPage = () => {
                     <span className={`badge ${platillo.estado === '1' ? 'bg-success' : 'bg-secondary'}`}>
                       {platillo.estado === '1' ? 'Activo' : 'Inactivo'}
                     </span>
-                  </td>
-                  <td>
-                    {platillo.imagen_url && (
-                      <img 
-                        src={platillo.imagen_url} 
-                        alt={platillo.nombre_platillo} 
-                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                        className="img-thumbnail"
-                      />
-                    )}
                   </td>
                   <td>
                     <button 
@@ -190,7 +176,7 @@ const PlatilloPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center">
+                <td colSpan="7" className="text-center">
                   No hay platillos registrados
                 </td>
               </tr>
@@ -283,18 +269,6 @@ const PlatilloPage = () => {
                       <option value="1">Activo</option>
                       <option value="0">Inactivo</option>
                     </select>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">URL de la Imagen</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="imagen_url"
-                      value={currentPlatillo.imagen_url}
-                      onChange={handleFormChange}
-                      placeholder="https://ejemplo.com/imagen.jpg"
-                    />
                   </div>
                 </div>
                 <div className="modal-footer">
