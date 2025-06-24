@@ -1,6 +1,6 @@
 import React from 'react';
-import './App.css';
-import { Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 
 // Importar los componentes de página
 import UsuarioPage from './components/usuario/UsuarioPage';
@@ -14,117 +14,112 @@ function App() {
   const isActiveRoute = (path) => location.pathname === path;
 
   return (
-    <div className="app-container">
-      {/* Sidebar Navigation */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <Link to="/" className="brand-logo">
-            <span className="logo-icon">🍽️</span>
-            <span className="brand-name">Sabores del Chef</span>
-          </Link>
+    <div className="container-fluid">
+      <div className="row">
+        {/* Sidebar de navegación */}
+        <div className="col-12 col-md-3 col-lg-2 bg-primary text-white p-3 shadow-lg border-right" style={{ minHeight: '100vh' }}>
+          <div className="mb-4 text-center">
+            <h3 className="font-weight-bold text-uppercase text-shadow">Sabores del Chef</h3>
+          </div>
+          <nav className="nav flex-column">
+            <NavLink
+              to="/usuario"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/usuario') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Usuarios
+            </NavLink>
+            <NavLink
+              to="/categoria"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/categoria') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Categorías
+            </NavLink>
+            <NavLink
+              to="/ingrediente"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/ingrediente') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Ingredientes
+            </NavLink>
+            <NavLink
+              to="/platillo"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/platillo') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Platillos
+            </NavLink>
+            <NavLink
+              to="/rol"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/rol') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Roles
+            </NavLink>
+          </nav>
         </div>
-        
-        <nav className="sidebar-nav">
-          <NavLink 
-            to="/platillos" 
-            className={`nav-item ${isActiveRoute('/platillos') ? 'active' : ''}`}
-          >
-            <span className="nav-icon">🍲</span>
-            <span className="nav-text">Menú</span>
-          </NavLink>
-          
-          <NavLink 
-            to="/categorias" 
-            className={`nav-item ${isActiveRoute('/categorias') ? 'active' : ''}`}
-          >
-            <span className="nav-icon">📋</span>
-            <span className="nav-text">Categorías</span>
-          </NavLink>
-          
-          <NavLink 
-            to="/ingredientes" 
-            className={`nav-item ${isActiveRoute('/ingredientes') ? 'active' : ''}`}
-          >
-            <span className="nav-icon">🥕</span>
-            <span className="nav-text">Ingredientes</span>
-          </NavLink>
-          
-          <NavLink 
-            to="/usuarios" 
-            className={`nav-item ${isActiveRoute('/usuarios') ? 'active' : ''}`}
-          >
-            <span className="nav-icon">👨‍🍳</span>
-            <span className="nav-text">Personal</span>
-          </NavLink>
-          
-          <NavLink 
-            to="/roles" 
-            className={`nav-item ${isActiveRoute('/roles') ? 'active' : ''}`}
-          >
-            <span className="nav-icon">🔑</span>
-            <span className="nav-text">Roles</span>
-          </NavLink>
-        </nav>
-        
-        <div className="sidebar-footer">
-          <button className="orders-btn">
-            <span className="orders-icon">🛒</span>
-            <span className="orders-text">Órdenes</span>
-          </button>
+
+        {/* Área de contenido */}
+        <div className="col-12 col-md-9 col-lg-10 p-4">
+          <div className="rounded shadow-lg p-4" style={{ backgroundColor: '#f8f9fa' }}>
+            <Routes>
+              <Route path="/usuario" element={<UsuarioPage />} />
+              <Route path="/categoria" element={<CategoriaPage />} />
+              <Route path="/ingrediente" element={<IngredientePage />} />
+              <Route path="/platillo" element={<PlatilloPage />} />
+              <Route path="/rol" element={<RolPage />} />
+            </Routes>
+          </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="main-content">
-        <header className="content-header">
-          <h1 className="page-title">
-            {isActiveRoute('/platillos') && 'Menú de Platillos'}
-            {isActiveRoute('/categorias') && 'Categorías'}
-            {isActiveRoute('/ingredientes') && 'Ingredientes'}
-            {isActiveRoute('/usuarios') && 'Personal'}
-            {isActiveRoute('/roles') && 'Roles'}
-          </h1>
-          <div className="user-profile">
-            <span className="user-avatar">👨‍💼</span>
-            <span className="user-name">Administrador</span>
-          </div>
-        </header>
-        
-        <div className="content-container">
-          <Routes>
-            <Route path="/" element={<PlatilloPage />} /> 
-            <Route path="/usuarios" element={<UsuarioPage />} />
-            <Route path="/categorias" element={<CategoriaPage />} />
-            <Route path="/ingredientes" element={<IngredientePage />} />
-            <Route path="/platillos" element={<PlatilloPage />} />
-            <Route path="/roles" element={<RolPage />} />
-            <Route path="*" element={
-              <div className="not-found-container">
-                <div className="not-found-content">
-                  <h1 className="error-code">404</h1>
-                  <h2 className="error-title">Página no encontrada</h2>
-                  <p className="error-message">El platillo que buscas no está en nuestro menú</p>
-                  <Link to="/" className="home-btn">
-                    Volver al Menú Principal
-                  </Link>
-                </div>
-              </div>
-            } />
-          </Routes>
+      {/* Botón para abrir/ocultar el menú en dispositivos móviles */}
+      <button
+        className="btn btn-dark d-md-none position-fixed bottom-0 end-0 m-3 rounded-circle shadow-lg"
+        style={{ zIndex: 9999, width: '60px', height: '60px', fontSize: '24px' }}
+        data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasMenu"
+        aria-controls="offcanvasMenu"
+      >
+        ☰
+      </button>
+
+      {/* Offcanvas (menú lateral en móviles) */}
+      <div className="offcanvas offcanvas-start bg-primary text-white" tabIndex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+        <div className="offcanvas-header">
+          <h5 id="offcanvasMenuLabel" className="font-weight-bold text-uppercase">Sabores del Chef</h5>
+          <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        
-        <footer className="content-footer">
-          <div className="footer-content">
-            <p className="copyright">
-              © {new Date().getFullYear()} Sabores del Chef. Todos los derechos reservados.
-            </p>
-            <div className="footer-links">
-              <a href="#!" className="footer-link">Términos</a>
-              <a href="#!" className="footer-link">Privacidad</a>
-              <a href="#!" className="footer-link">Contacto</a>
-            </div>
-          </div>
-        </footer>
+        <div className="offcanvas-body">
+          <nav className="nav flex-column">
+            <NavLink
+              to="/usuario"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/usuario') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Usuarios
+            </NavLink>
+            <NavLink
+              to="/categoria"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/categoria') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Categorías
+            </NavLink>
+            <NavLink
+              to="/ingrediente"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/ingrediente') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Ingredientes
+            </NavLink>
+            <NavLink
+              to="/platillo"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/platillo') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Platillos
+            </NavLink>
+            <NavLink
+              to="/rol"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/rol') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Roles
+            </NavLink>
+          </nav>
+        </div>
       </div>
     </div>
   );

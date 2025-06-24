@@ -1,16 +1,18 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import ReactDOM from 'react-dom/client' //RENDER CLIENTE
-import { BrowserRouter } from 'react-router-dom'; //ALGO DE LA NAVEGACIÓN NO SÉ
-import './index.css'
-import App from './App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // Importa la creación del root desde react-dom/client
+import { BrowserRouter } from 'react-router-dom'; // Para la navegación
+import 'bootstrap/dist/css/bootstrap.min.css'; // Importa los estilos de Bootstrap
+import App from './App.jsx'; // Importa el componente principal de la app
 
+// Crea el root de la aplicación usando React 18+
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// Renderiza el componente dentro del root
+root.render(
   <React.StrictMode>
-    {/* Este es el ÚNICO BrowserRouter que debe haber en tu aplicación */}
+    {/* El BrowserRouter debe envolver toda la aplicación para la navegación */}
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
