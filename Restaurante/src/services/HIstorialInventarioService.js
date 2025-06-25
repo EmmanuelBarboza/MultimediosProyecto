@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';
 const HistorialInventarioEndpoint = 'HistorialInventario.php'; 
 
-export const obtenerCategorias = () => {
+export const obtenerHistorialInventarios = () => {
     return axios.get(`${API_URL}${HistorialInventarioEndpoint}`);
 };
 
@@ -13,11 +13,11 @@ export const agregarHistorialInv = (datos) => {
 };
 
 // Para ELIMINAR (DELETE): El ID del historial del invenatio en la URL
-export const eliminarCategoria = (id_historial_inventario) => {
+export const eliminarHistorialInv= (id_historial_inventario) => {
     return axios.delete(`${API_URL}${HistorialInventarioEndpoint}?id_historial_inventario=${id_historial_inventario}`);
 };
 
 // (Opcional) Para obtener el historial del inventario por ID del inventario
-export const obtenerCategoriaPorId = (id_inventario) => {
+export const obtenerHistorialInvPorId = (id_inventario) => {
     return axios.get(`${API_URL}${HistorialInventarioEndpoint}?id_inventario=${id_inventario}`);
 };

@@ -19,11 +19,15 @@ export const eliminarHistorialPed = (id_historial_pedido) => {
 };
 
 // Para ACTUALIZAR (PUT): El ID en la URL y el estado actualizado del pedido en el cuerpo
-export const actualizarHistorialPed = (id_categoria, datos) => {
+export const actualizarHistorialPed = (id_historial_pedido, datos) => {
     return axios.put(`${API_URL}${HistorialPedidoEndpoint}?id_historial_pedido=${id_historial_pedido}`, datos);
 };
 
 // (Opcional) Para obtener el historial del pedido por ID del pedido
 export const obtenerhistorialPorIdPedido = (id_pedido) => {
-    return axios.get(`${API_URL}${HistorialPedidoEndpoint}?id_inventario=${id_inventario}`);
+    return axios.get(`${API_URL}${HistorialPedidoEndpoint}?id_pedido=${id_pedido}`);
+};
+
+export const obtenerhistorialPorId = (id_historial_pedido) => {
+    return axios.get(`${API_URL}${HistorialPedidoEndpoint}?id_historial_pedido=${id_historial_pedido}`);
 };

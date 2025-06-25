@@ -8,6 +8,8 @@ import CategoriaPage from './components/categoria/CategoriaPage';
 import IngredientePage from './components/ingrediente/IngredientePage';
 import PlatilloPage from './components/platillo/PlatilloPage';
 import RolPage from './components/rol/RolPage';
+import HistoriaPedidoPage from './components/historial_pedido/HistorialPedidoPage';
+import HistorialInventarioPage from './components/historial_inventario/HistorialInventarioPage';
 
 function App() {
   const location = useLocation();
@@ -52,6 +54,20 @@ function App() {
             >
               Roles
             </NavLink>
+
+             <NavLink
+              to="/historial_pedido"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_pedido') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Historial de Pedidos
+            </NavLink>
+
+             <NavLink
+              to="/historial_inventario"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_inventario') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Historial del Inventario
+            </NavLink>
           </nav>
         </div>
 
@@ -64,6 +80,8 @@ function App() {
               <Route path="/ingrediente" element={<IngredientePage />} />
               <Route path="/platillo" element={<PlatilloPage />} />
               <Route path="/rol" element={<RolPage />} />
+              <Route path="/historial_pedido" element={<HistoriaPedidoPage />} />
+              <Route path="/historial_inventario" element={<HistorialInventarioPage />} />
             </Routes>
           </div>
         </div>
@@ -117,6 +135,20 @@ function App() {
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/rol') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Roles
+            </NavLink>
+
+            <NavLink
+              to="/historial_pedido"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_pedido') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Historial de Pedidos
+            </NavLink>
+
+             <NavLink
+              to="/historial_inventario"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_inventario') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Historial del Inventario
             </NavLink>
           </nav>
         </div>
