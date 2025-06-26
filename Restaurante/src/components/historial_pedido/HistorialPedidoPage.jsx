@@ -43,7 +43,6 @@ const HistorialPedidoPage = () => {
      }, []);
 
     // Manejadores para el modal
-     
     
       const handleEditHistorialPedido = async (id) => {
         try {
@@ -54,9 +53,11 @@ const HistorialPedidoPage = () => {
             fecha_entrega: data.fecha_entrega,
             estado_entrega: data.estado_entrega
           });
+          console.log(data);
           setIsEditing(true);
           setShowModal(true);
         } catch (error) {
+          
           console.error('Error al cargar historial del pedido:', error);
           setError('No se pudo cargar el historial del pedido para editar.');
         }
@@ -73,6 +74,7 @@ const HistorialPedidoPage = () => {
         setCurrentHistorialP(prev => ({ ...prev, [name]: value }));
       };
     
+      
       // Manejador para enviar el formulario
       const handleSubmit = async (e) => {
         e.preventDefault();
@@ -81,11 +83,12 @@ const HistorialPedidoPage = () => {
         try {
           if (isEditing) {
             await actualizarHistorialPed(currentHistorialP.id_historial_pedido, currentHistorialP);
+            console.log(currentHistorialP)
           } else {
             await agregarHistorialPed(currentHistorialP);
           }
           handleCloseModal();
-          cargarPlatillos();
+          cargarHistorialPedidos();
         } catch (error) {
           console.error('Error al guardar el historial del pedido:', error);
           setError(error.response?.data?.message || 'Error al guardar el el historial del pedido');
@@ -97,7 +100,7 @@ const HistorialPedidoPage = () => {
         if (window.confirm('¿Estás seguro de eliminar el historial de este pedido?')) {
           try {
             await eliminarHistorialPed(id);
-            cargarPlatillos();
+            cargarHistorialPedidos();
           } catch (error) {
             console.error('Error al eliminar historial de este pedido:', error);
             setError('Error al eliminar el historial de este pedido');
@@ -108,7 +111,6 @@ const HistorialPedidoPage = () => {
     return (
       <div className="container"> 
         <h4>Lista de Historial de Pedidos</h4>
-
 
         {cargando && <div className="alert alert-info">Cargando...</div>}
         {error && <div className="alert alert-danger">{error}</div>}
@@ -135,7 +137,7 @@ const HistorialPedidoPage = () => {
                   <td>
                     <button 
                       className="btn btn-warning btn-sm me-2"
-                      onClick={() => handleEditHistorialPedido(historial.id_historial_pedido)}
+                      onClick={() => handleEditHistorialPedido(historial.id_historial_pedido, historial)}
                     >
                       Editar
                     </button>
@@ -186,7 +188,7 @@ const HistorialPedidoPage = () => {
                     <label className="form-label">Estado Entrega</label>
                     <select
                       className="form-select"
-                      name="estado"
+                      name="estado_entrega"
                       value={historialP.estado_entrega}
                       onChange={handleFormChange}
                       required
@@ -206,7 +208,7 @@ const HistorialPedidoPage = () => {
                     Cancelar
                   </button>
                   <button type="submit" className="btn btn-primary">
-                    {isEditing ? 'Guardar Cambios' : 'Añadir Platillo'}
+                    {isEditing ? 'Guardar Cambios' : 'Añadir Historial'}
                   </button>
                 </div>
               </form>
