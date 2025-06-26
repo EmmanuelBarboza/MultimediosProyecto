@@ -21,8 +21,7 @@ const PlatilloPage = () => {
     nombre_platillo: '',
     descripcion: '',
     precio: '',
-    id_categoria: '',
-    estado: '1'
+    id_categoria: ''
   });
 
   const cargarPlatillos = async () => {
@@ -60,8 +59,7 @@ const PlatilloPage = () => {
       nombre_platillo: '',
       descripcion: '',
       precio: '',
-      id_categoria: '',
-      estado: '1'
+      id_categoria: ''
     });
     setShowModal(true);
   };
@@ -74,8 +72,7 @@ const PlatilloPage = () => {
         nombre_platillo: data.nombre_platillo,
         descripcion: data.descripcion,
         precio: data.precio,
-        id_categoria: data.id_categoria,
-        estado: data.estado.toString()
+        id_categoria: data.id_categoria
       });
       setIsEditing(true);
       setShowModal(true);
@@ -150,7 +147,6 @@ const PlatilloPage = () => {
               <th>Descripción</th>
               <th>Precio</th>
               <th>Categoría</th>
-              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -163,11 +159,6 @@ const PlatilloPage = () => {
                   <td>{platillo.descripcion}</td>
                   <td>${parseFloat(platillo.precio).toFixed(2)}</td>
                   <td>{obtenerNombreCategoria(platillo.id_categoria)}</td>
-                  <td>
-                    <span className={`badge ${platillo.estado === '1' ? 'bg-success' : 'bg-secondary'}`}>
-                      {platillo.estado === '1' ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
                   <td>
                     <button 
                       className="btn btn-warning btn-sm me-2"
@@ -186,7 +177,7 @@ const PlatilloPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center">No hay platillos registrados</td>
+                <td colSpan="6" className="text-center">No hay platillos registrados</td>
               </tr>
             )}
           </tbody>
@@ -257,20 +248,6 @@ const PlatilloPage = () => {
                           {cat.nombre_categoria}
                         </option>
                       ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">Estado</label>
-                    <select
-                      className="form-select"
-                      name="estado"
-                      value={currentPlatillo.estado}
-                      onChange={handleFormChange}
-                      required
-                    >
-                      <option value="1">Activo</option>
-                      <option value="0">Inactivo</option>
                     </select>
                   </div>
                 </div>
