@@ -48,7 +48,7 @@ const HistorialPedidoPage = () => {
       const handleEditHistorialPedido = async (id) => {
         try {
           const { data } = await obtenerhistorialPorId(id);
-          setCurrentPlatillo({
+          setCurrentHistorialP({
             id_historial_pedido: data.id_historial_pedido,
             pedido_id: data.pedido_id,
             fecha_entrega: data.fecha_entrega,
@@ -87,8 +87,8 @@ const HistorialPedidoPage = () => {
           handleCloseModal();
           cargarPlatillos();
         } catch (error) {
-          console.error('Error al guardar platillo:', error);
-          setError(error.response?.data?.message || 'Error al guardar el platillo');
+          console.error('Error al guardar el historial del pedido:', error);
+          setError(error.response?.data?.message || 'Error al guardar el el historial del pedido');
         }
       };
     
@@ -187,13 +187,13 @@ const HistorialPedidoPage = () => {
                     <select
                       className="form-select"
                       name="estado"
-                      value={historial.estado_entrega}
+                      value={historialP.estado_entrega}
                       onChange={handleFormChange}
                       required
                     >
-                      <option value="1">Pendiente</option>
-                      <option value="0">Entregdo</option>
-                      <option value="0">Cancelado</option>
+                      <option value="pendiente">Pendiente</option>
+                      <option value="entregado">Entregado</option>
+                      <option value="cancelado">Cancelado</option>
                     </select>
                   </div>
                 </div>
