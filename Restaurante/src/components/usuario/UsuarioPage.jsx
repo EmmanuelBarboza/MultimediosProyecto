@@ -7,8 +7,11 @@ import {
   eliminarUsuarios    
 } from '../../services/usuarioService'; 
 
+import { obtenerRoles } from '../../services/rolService'; 
+
 const UsuarioPage = () => {
   const [usuarios, setUsuarios] = useState([]);
+  const [roles, setRoles] = useState([]); // Estado para almacenar los roles
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null); 
   
@@ -16,15 +19,32 @@ const UsuarioPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // true si estamos editando, false si estamos creando
   const [currentUsuario, setCurrentUsuario] = useState({ 
-    id_usuario: null, // Será el ID si editamos, null si creamos
+    id_usuario: null, 
     nombre: '',
     correo: '',
     password: '', 
-    tipo_usuario: '',
-    id_rol: '', 
-    fecha_creacion: new Date().toISOString().slice(0, 10), // Formato YYYY-MM-DD
+    tipo_usuario: '', // Este campo se llenará con el nombre del rol seleccionado
+    id_rol: '', // Este será el ID del rol seleccionado
+    fecha_creacion: new Date().toISOString().slice(0, 10), 
     estado: 'activo'
   });
+
+  // Función para cargar los roles
+  const cargarRoles = () => {
+    obtenerRoles()
+      .then((respuesta) => {
+        if (Array.isArray(respuesta.data)) {
+          setRoles(respuesta.data);
+        } else {
+          console.warn("La API de roles no devolvió un array:", respuesta.data);
+          setRoles([]); 
+        }
+      })
+      .catch((err) => {
+        console.error('Error al cargar roles para el formulario:', err.response ? err.response.data : err.message);
+        // Si no se pueden cargar los roles, el combobox estará vacío, lo cual es manejable.
+      });
+  };
 
   // Función para cargar los usuarios (se usa en useEffect y después de CUD)
   const cargarUsuarios = () => {
@@ -33,18 +53,25 @@ const UsuarioPage = () => {
     obtenerUsuarios()
       .then((respuesta) => {
         console.log('Respuesta de la API de usuarios:', respuesta.data); 
-        setUsuarios(respuesta.data); 
+        if (Array.isArray(respuesta.data)) {
+            setUsuarios(respuesta.data); 
+        } else {
+            console.warn("La API de usuarios no devolvió un array:", respuesta.data);
+            setUsuarios([]); 
+        }
         setCargando(false);
       })
       .catch((err) => {
         console.error('Error al cargar usuarios:', err.response ? err.response.data : err.message);
         setError('No se pudieron cargar los usuarios. Intenta de nuevo más tarde.'); 
+        setUsuarios([]);
         setCargando(false); 
       });
   };
 
   useEffect(() => {
-    cargarUsuarios(); // Carga usuarios al montar el componente
+    cargarUsuarios(); 
+    cargarRoles();    // Carga los roles al montar el componente para el combobox
   }, []); 
 
   // Manejador para abrir el modal de crear usuario
@@ -54,10 +81,10 @@ const UsuarioPage = () => {
       id_usuario: null, 
       nombre: '',
       correo: '',
-      password: '', // Siempre vacío al abrir para añadir
-      tipo_usuario: '',
+      password: '', 
+      tipo_usuario: '', 
       id_rol: '', 
-      fecha_creacion: new Date().toISOString().slice(0, 10), // Fecha actual para nuevo usuario
+      fecha_creacion: new Date().toISOString().slice(0, 10), 
       estado: 'activo'
     });
     setShowModal(true);
@@ -70,11 +97,10 @@ const UsuarioPage = () => {
       id_usuario: usuario.id_usuario,
       nombre: usuario.nombre,
       correo: usuario.correo,
-      password: '', // NO precargar la contraseña existente por seguridad
-      tipo_usuario: usuario.tipo_usuario,
-      // Convertir null o 0 a cadena vacía para el input, o mantener el valor
-      id_rol: (usuario.id_rol === null || usuario.id_rol === 0) ? '' : usuario.id_rol, 
-      fecha_creacion: usuario.fecha_creacion, // Usar la fecha existente para edición
+      password: '', 
+      tipo_usuario: usuario.tipo_usuario, 
+      id_rol: (usuario.id_rol === null || usuario.id_rol === 0) ? '' : String(usuario.id_rol), 
+      fecha_creacion: usuario.fecha_creacion, 
       estado: usuario.estado
     }); 
     setShowModal(true);
@@ -83,38 +109,44 @@ const UsuarioPage = () => {
   // Manejador para cerrar el modal
   const handleCloseModal = () => {
     setShowModal(false);
-    setError(null); // Limpiar errores del formulario al cerrar
+    setError(null); 
   };
 
   // Manejador para los cambios en el formulario del modal
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    const newValue = (name === 'id_rol' && value !== '') ? Number(value) : value;
-    setCurrentUsuario(prev => ({ ...prev, [name]: newValue }));
+
+    if (name === 'id_rol') {
+      const selectedRol = roles.find(rol => String(rol.id_rol) === value);
+      setCurrentUsuario(prev => ({ 
+        ...prev, 
+        id_rol: value, 
+        tipo_usuario: selectedRol ? selectedRol.nombre_rol : '' // Se actualiza tipo_usuario con el nombre del rol
+      }));
+    } else {
+      setCurrentUsuario(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // Manejador para enviar el formulario (crear o actualizar)
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError(null); // Limpiar errores previos
+    setError(null); 
 
-    // Crear una copia del usuario para enviar y ajustar `id_rol` y `password`
     const usuarioToSend = { ...currentUsuario };
 
-    // Ajustar id_rol: si está vacío en el formulario, enviarlo como null
     if (usuarioToSend.id_rol === '') {
       usuarioToSend.id_rol = null;
+      usuarioToSend.tipo_usuario = ''; // También limpia tipo_usuario si el rol es nulo
+    } else {
+      usuarioToSend.id_rol = Number(usuarioToSend.id_rol); 
     }
 
-    
     if (isEditing && usuarioToSend.password === '') {
-        delete usuarioToSend.password; // Elimina el campo si no se modificó para que PHP lo ignore
+        delete usuarioToSend.password; 
     }
-    // creando la password está vacía, el `required` del input ya debería forzarla.
-
 
     if (isEditing) {
-      // Para ACTUALIZAR (PUT):
       actualizarUsuarios(usuarioToSend.id_usuario, usuarioToSend)
         .then(() => {
           handleCloseModal();
@@ -125,8 +157,7 @@ const UsuarioPage = () => {
           setError('Error al actualizar el usuario. Verifica los datos e intenta de nuevo.');
         });
     } else {
-      // Para AGREGAR (POST): Datos en el cuerpo, sin id_usuario
-      const { id_usuario, ...newUsuarioData } = usuarioToSend; // Extraer id_usuario
+      const { id_usuario, ...newUsuarioData } = usuarioToSend; 
       agregarUsuarios(newUsuarioData)
         .then(() => {
           handleCloseModal();
@@ -142,7 +173,6 @@ const UsuarioPage = () => {
   // Manejador para eliminar usuario
   const handleDeleteUser = (id) => {
     if (window.confirm(`¿Estás seguro de que quieres eliminar el usuario con ID: ${id}?`)) {
-      // Para ELIMINAR (DELETE): ID en la URL
       eliminarUsuarios(id)
         .then(() => {
           cargarUsuarios(); 
@@ -158,7 +188,6 @@ const UsuarioPage = () => {
     <div className="container mt-4">
       <h2>Listado de Usuarios</h2>
 
-      {/* Botón para añadir nuevo usuario */}
       <button className="btn btn-primary mb-3" onClick={handleAddUser}>
         Añadir Nuevo Usuario
       </button>
@@ -175,42 +204,43 @@ const UsuarioPage = () => {
                 <th>Nombre</th>
                 <th>Correo</th>
                 <th>Tipo de Usuario</th>
-                <th>Rol</th>
+                <th>Rol</th> {/* Columna ahora se llama "Rol" */}
                 <th>Fecha de Creación</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {usuarios.map((usuario) => ( 
-                <tr key={usuario.id_usuario}>
-                  <td>{usuario.id_usuario}</td>
-                  <td>{usuario.nombre}</td>
-                  <td>{usuario.correo}</td>
-                  <td>{usuario.tipo_usuario}</td>
-                  {/* Si id_rol es null o 0, mostrar 'N/A' */}
-                  <td>{usuario.id_rol === null || usuario.id_rol === 0 ? 'N/A' : usuario.id_rol}</td> 
-                  {/* Asegúrate de que fecha_creacion se formatea correctamente */}
-                  <td>{new Date(usuario.fecha_creacion).toLocaleDateString()}</td>
-                  <td>{usuario.estado}</td>
-                  <td>
-                    {/* Botón Editar */}
-                    <button 
-                      className="btn btn-sm btn-info me-2"
-                      onClick={() => handleEditUser(usuario)}
-                    >
-                      Editar
-                    </button>
-                    {/* Botón Eliminar */}
-                    <button 
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDeleteUser(usuario.id_usuario)}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {usuarios.map((usuario) => {
+                // Buscar el nombre del rol usando el id_rol del usuario
+                // Si usuario.id_rol es null o 0, find devolverá undefined, y 'N/A' será el fallback
+                const rolNombre = roles.find(rol => rol.id_rol === usuario.id_rol)?.nombre_rol || 'N/A';
+                return (
+                  <tr key={usuario.id_usuario}>
+                    <td>{usuario.id_usuario}</td>
+                    <td>{usuario.nombre}</td>
+                    <td>{usuario.correo}</td>
+                    <td>{usuario.tipo_usuario}</td> {/* Muestra el tipo_usuario que viene de la API */}
+                    <td>{rolNombre}</td> {/* Muestra el nombre del rol basado en la lista de roles */}
+                    <td>{new Date(usuario.fecha_creacion).toLocaleDateString()}</td>
+                    <td>{usuario.estado}</td>
+                    <td>
+                      <button 
+                        className="btn btn-sm btn-info me-2"
+                        onClick={() => handleEditUser(usuario)}
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDeleteUser(usuario.id_usuario)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         ) : (
@@ -276,36 +306,54 @@ const UsuarioPage = () => {
                       name="password" 
                       value={currentUsuario.password} 
                       onChange={handleFormChange} 
-                      required={!isEditing} // Solo requerida al crear
+                      required={!isEditing} 
                     />
                     {!isEditing && <div className="form-text">La contraseña es requerida para nuevos usuarios.</div>}
                     {isEditing && <div className="form-text">Deja en blanco para no cambiar la contraseña.</div>}
                   </div>
+                  {/* Campo de selección para "Tipo Usuario" */}
                   <div className="mb-3">
                     <label htmlFor="tipo_usuario" className="form-label">Tipo de Usuario</label>
-                    <input 
-                      type="text" 
-                      className="form-control" 
+                    <select 
+                      className="form-select" 
                       id="tipo_usuario" 
                       name="tipo_usuario" 
                       value={currentUsuario.tipo_usuario} 
                       onChange={handleFormChange} 
-                      required 
-                    />
+                      required
+                    >
+                      <option value="">Selecciona un tipo</option> 
+                      {roles.map((rol) => (
+                        <option key={rol.id_rol} value={rol.id_rol}>
+                          {rol.nombre_rol}
+                         
+                        </option>
+                        
+                      ))}
+                    </select>
                   </div>
+                  
+                  {/* Campo de selección para "Rol de Usuario" */}
                   <div className="mb-3">
-                    <label htmlFor="id_rol" className="form-label">ID Rol</label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
+                    <label htmlFor="id_rol" className="form-label">Rol de Usuario</label>
+                    <select 
+                      className="form-select" 
                       id="id_rol" 
                       name="id_rol" 
                       value={currentUsuario.id_rol} 
                       onChange={handleFormChange} 
-                      placeholder="Ej: 1 o 2" 
-                    />
-                    <div className="form-text">Deja en blanco si no aplica o es nulo (se enviará como `null`).</div>
+                      required
+                    >
+                      <option value="">Selecciona un rol</option> 
+                      {roles.map((rol) => (
+                        <option key={rol.id_rol} value={rol.id_rol}>
+                          {rol.nombre_rol}
+                        </option>
+                        
+                      ))}
+                    </select>
                   </div>
+
                   <div className="mb-3">
                     <label htmlFor="fecha_creacion" className="form-label">Fecha de Creación</label>
                     <input 
