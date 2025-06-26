@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
-import { 
+import {
   obtenerPlatillos,
   agregarPlatillo,
   actualizarPlatillo,
   eliminarPlatillo,
   obtenerPlatilloPorId
 } from '../../services/platilloService';
+import { obtenerCategorias } from '../../services/categoriaService';
 
 const PlatilloPage = () => {
   const [platillos, setPlatillos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   
-  // Estado para el modal
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPlatillo, setCurrentPlatillo] = useState({
@@ -21,10 +22,9 @@ const PlatilloPage = () => {
     descripcion: '',
     precio: '',
     id_categoria: '',
-    estado: '1' // 1 para activo, 0 para inactivo
+    estado: '1'
   });
 
-  // Cargar platillos
   const cargarPlatillos = async () => {
     setCargando(true);
     setError(null);
@@ -39,11 +39,20 @@ const PlatilloPage = () => {
     }
   };
 
+  const cargarCategorias = async () => {
+    try {
+      const { data } = await obtenerCategorias();
+      setCategorias(data);
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+    }
+  };
+
   useEffect(() => {
     cargarPlatillos();
+    cargarCategorias();
   }, []);
 
-  // Manejadores para el modal
   const handleAddPlatillo = () => {
     setIsEditing(false);
     setCurrentPlatillo({
@@ -66,7 +75,7 @@ const PlatilloPage = () => {
         descripcion: data.descripcion,
         precio: data.precio,
         id_categoria: data.id_categoria,
-        estado: data.estado.toString() // Asegurar que es string para el select
+        estado: data.estado.toString()
       });
       setIsEditing(true);
       setShowModal(true);
@@ -81,13 +90,11 @@ const PlatilloPage = () => {
     setError(null);
   };
 
-  // Manejador de cambios en el formulario
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setCurrentPlatillo(prev => ({ ...prev, [name]: value }));
   };
 
-  // Manejador para enviar el formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -106,7 +113,6 @@ const PlatilloPage = () => {
     }
   };
 
-  // Manejador para eliminar platillo
   const handleDelete = async (id) => {
     if (window.confirm('¿Estás seguro de eliminar este platillo?')) {
       try {
@@ -119,11 +125,15 @@ const PlatilloPage = () => {
     }
   };
 
+  const obtenerNombreCategoria = (id) => {
+    const categoria = categorias.find(cat => cat.id_categoria === id);
+    return categoria ? categoria.nombre_categoria : id;
+  };
+
   return (
     <div className="container mt-4">
       <h2>Listado de Platillos</h2>
 
-      {/* Botón para añadir nuevo platillo */}
       <button className="btn btn-primary mb-3" onClick={handleAddPlatillo}>
         Añadir Nuevo Platillo
       </button>
@@ -152,7 +162,7 @@ const PlatilloPage = () => {
                   <td>{platillo.nombre_platillo}</td>
                   <td>{platillo.descripcion}</td>
                   <td>${parseFloat(platillo.precio).toFixed(2)}</td>
-                  <td>{platillo.id_categoria}</td>
+                  <td>{obtenerNombreCategoria(platillo.id_categoria)}</td>
                   <td>
                     <span className={`badge ${platillo.estado === '1' ? 'bg-success' : 'bg-secondary'}`}>
                       {platillo.estado === '1' ? 'Activo' : 'Inactivo'}
@@ -176,38 +186,25 @@ const PlatilloPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center">
-                  No hay platillos registrados
-                </td>
+                <td colSpan="7" className="text-center">No hay platillos registrados</td>
               </tr>
             )}
           </tbody>
         </table>
       )}
 
-      {/* Modal para Añadir/Editar Platillo */}
       {showModal && (
-        <div 
-          className="modal fade show d-block" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          tabIndex="-1"
-        >
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">
-                  {isEditing ? 'Editar Platillo' : 'Añadir Nuevo Platillo'}
-                </h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
-                  onClick={handleCloseModal}
-                ></button>
+                <h5 className="modal-title">{isEditing ? 'Editar Platillo' : 'Añadir Nuevo Platillo'}</h5>
+                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
                   {error && <div className="alert alert-danger">{error}</div>}
-                  
+
                   <div className="mb-3">
                     <label className="form-label">Nombre</label>
                     <input
@@ -219,7 +216,7 @@ const PlatilloPage = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="mb-3">
                     <label className="form-label">Descripción</label>
                     <textarea
@@ -230,7 +227,7 @@ const PlatilloPage = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="mb-3">
                     <label className="form-label">Precio</label>
                     <input
@@ -244,19 +241,25 @@ const PlatilloPage = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="mb-3">
-                    <label className="form-label">ID Categoría</label>
-                    <input
-                      type="number"
-                      className="form-control"
+                    <label className="form-label">Categoría</label>
+                    <select
+                      className="form-select"
                       name="id_categoria"
                       value={currentPlatillo.id_categoria}
                       onChange={handleFormChange}
                       required
-                    />
+                    >
+                      <option value="">Seleccione una categoría</option>
+                      {categorias.map((cat) => (
+                        <option key={cat.id_categoria} value={cat.id_categoria}>
+                          {cat.nombre_categoria}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  
+
                   <div className="mb-3">
                     <label className="form-label">Estado</label>
                     <select
@@ -272,13 +275,7 @@ const PlatilloPage = () => {
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={handleCloseModal}
-                  >
-                    Cancelar
-                  </button>
+                  <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancelar</button>
                   <button type="submit" className="btn btn-primary">
                     {isEditing ? 'Guardar Cambios' : 'Añadir Platillo'}
                   </button>
