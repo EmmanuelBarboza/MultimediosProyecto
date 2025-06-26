@@ -13,7 +13,7 @@ const UsuarioPage = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]); // Estado para almacenar los roles
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null); // Estado para mensajes de error
   
   // Estado para el modal de añadir/editar
   const [showModal, setShowModal] = useState(false);
@@ -23,13 +23,12 @@ const UsuarioPage = () => {
     nombre: '',
     correo: '',
     password: '', 
-    tipo_usuario: '', // Este campo se llenará con el nombre del rol seleccionado
     id_rol: '', // Este será el ID del rol seleccionado
     fecha_creacion: new Date().toISOString().slice(0, 10), 
     estado: 'activo'
   });
 
-  // Función para cargar los roles
+  // Función para cargar los roles desde la API
   const cargarRoles = () => {
     obtenerRoles()
       .then((respuesta) => {
@@ -46,10 +45,10 @@ const UsuarioPage = () => {
       });
   };
 
-  // Función para cargar los usuarios (se usa en useEffect y después de CUD)
+  // Función para cargar los usuarios desde la API
   const cargarUsuarios = () => {
     setCargando(true);
-    setError(null);
+    setError(null); // Limpiar errores antes de una nueva carga de usuarios
     obtenerUsuarios()
       .then((respuesta) => {
         console.log('Respuesta de la API de usuarios:', respuesta.data); 
@@ -69,12 +68,13 @@ const UsuarioPage = () => {
       });
   };
 
+  // Efecto que se ejecuta al montar el componente para cargar usuarios y roles
   useEffect(() => {
     cargarUsuarios(); 
     cargarRoles();    // Carga los roles al montar el componente para el combobox
   }, []); 
 
-  // Manejador para abrir el modal de crear usuario
+  // Manejador para abrir el modal en modo "añadir nuevo usuario"
   const handleAddUser = () => {
     setIsEditing(false);
     setCurrentUsuario({
@@ -82,100 +82,120 @@ const UsuarioPage = () => {
       nombre: '',
       correo: '',
       password: '', 
-      tipo_usuario: '', 
       id_rol: '', 
       fecha_creacion: new Date().toISOString().slice(0, 10), 
       estado: 'activo'
     });
+    setError(null); // Limpiar cualquier error previo al abrir el modal
     setShowModal(true);
   };
 
-  // Manejador para abrir el modal para editar usuario
+  // Manejador para abrir el modal en modo "editar usuario existente"
   const handleEditUser = (usuario) => {
     setIsEditing(true);
     setCurrentUsuario({ 
       id_usuario: usuario.id_usuario,
       nombre: usuario.nombre,
       correo: usuario.correo,
-      password: '', 
-      tipo_usuario: usuario.tipo_usuario, 
-      id_rol: (usuario.id_rol === null || usuario.id_rol === 0) ? '' : String(usuario.id_rol), 
+      password: '',  // La contraseña se deja en blanco por seguridad al editar
+      id_rol: (usuario.id_rol == null || usuario.id_rol == 0) ? '' : String(usuario.id_rol), 
       fecha_creacion: usuario.fecha_creacion, 
       estado: usuario.estado
     }); 
+    setError(null); // Limpiar cualquier error previo al abrir el modal
     setShowModal(true);
   };
 
   // Manejador para cerrar el modal
   const handleCloseModal = () => {
     setShowModal(false);
-    setError(null); 
+    setError(null); // Limpiar errores al cerrar el modal
   };
 
-  // Manejador para los cambios en el formulario del modal
+  // Manejador para los cambios en los campos del formulario del modal
   const handleFormChange = (e) => {
     const { name, value } = e.target;
+    setError(null); // Limpiar errores cuando el usuario comienza a escribir o cambia un campo
 
-    if (name === 'id_rol') {
-      const selectedRol = roles.find(rol => String(rol.id_rol) === value);
+    if (name == 'id_rol') { 
+      const selectedRol = roles.find(rol => String(rol.id_rol) == value);
       setCurrentUsuario(prev => ({ 
         ...prev, 
         id_rol: value, 
-        tipo_usuario: selectedRol ? selectedRol.nombre_rol : '' // Se actualiza tipo_usuario con el nombre del rol
       }));
     } else {
       setCurrentUsuario(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  // Manejador para enviar el formulario (crear o actualizar)
+  // Manejador para enviar el formulario (crear o actualizar usuario)
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError(null); 
+    setError(null); // Limpiar errores antes de intentar el envío del formulario
 
     const usuarioToSend = { ...currentUsuario };
 
-    if (usuarioToSend.id_rol === '') {
+    // Si id_rol está vacío en el formulario, se envía como null al backend
+    if (usuarioToSend.id_rol == '') { 
       usuarioToSend.id_rol = null;
-      usuarioToSend.tipo_usuario = ''; // También limpia tipo_usuario si el rol es nulo
     } else {
       usuarioToSend.id_rol = Number(usuarioToSend.id_rol); 
     }
 
-    if (isEditing && usuarioToSend.password === '') {
+    // Si estamos editando y la contraseña está vacía, no la enviamos para no cambiarla en el backend
+    if (isEditing && usuarioToSend.password === '') { 
         delete usuarioToSend.password; 
     }
 
     if (isEditing) {
+      // Lógica para actualizar un usuario existente
       actualizarUsuarios(usuarioToSend.id_usuario, usuarioToSend)
         .then(() => {
-          handleCloseModal();
-          cargarUsuarios(); 
+          handleCloseModal(); // Cierra el modal
+          cargarUsuarios(); // Recarga la lista de usuarios para ver los cambios
         })
         .catch((err) => {
           console.error('Error al actualizar usuario:', err.response ? err.response.data : err.message);
-          setError('Error al actualizar el usuario. Verifica los datos e intenta de nuevo.');
+          const apiError = err.response ? err.response.data : {};
+          
+          // Verifica si el mensaje de error de la API indica que el correo ya está en uso
+          // El mensaje esperado es "El correo electrónico '...' ya está en uso por otro usuario."
+          if (apiError.message && apiError.message.includes('ya está en uso')) { 
+            setError('El correo electrónico ingresado ya está en uso por otro usuario.');
+          } else {
+            setError('Error al actualizar el usuario. Verifica los datos e intenta de nuevo.');
+          }
         });
     } else {
-      const { id_usuario, ...newUsuarioData } = usuarioToSend; 
+      // Lógica para crear un nuevo usuario
+      const { id_usuario, ...newUsuarioData } = usuarioToSend; // Quitamos id_usuario para nuevos registros
       agregarUsuarios(newUsuarioData)
         .then(() => {
-          handleCloseModal();
-          cargarUsuarios(); 
+          handleCloseModal(); // Cierra el modal
+          cargarUsuarios(); // Recarga la lista de usuarios para ver el nuevo usuario
         })
         .catch((err) => {
           console.error('Error al crear usuario:', err.response ? err.response.data : err.message);
-          setError('Error al crear el usuario. Verifica los datos e intenta de nuevo.');
+          const apiError = err.response ? err.response.data : {};
+
+          // Verifica si el mensaje de error de la API indica que el correo ya está en uso
+          // El mensaje esperado es "El correo electrónico '...' ya está en uso."
+          if (apiError.message && apiError.message.includes('ya está en uso')) { 
+            setError('El correo electrónico ingresado ya está en uso.');
+          } else {
+            setError('Error al crear el usuario. Verifica los datos e intenta de nuevo.');
+          }
         });
     }
   };
 
-  // Manejador para eliminar usuario
+  // Manejador para eliminar un usuario
   const handleDeleteUser = (id) => {
+    // Pide confirmación antes de eliminar
     if (window.confirm(`¿Estás seguro de que quieres eliminar el usuario con ID: ${id}?`)) {
       eliminarUsuarios(id)
         .then(() => {
-          cargarUsuarios(); 
+          cargarUsuarios(); // Recarga la lista de usuarios
         })
         .catch((err) => {
           console.error('Error al eliminar usuario:', err.response ? err.response.data : err.message);
@@ -192,9 +212,11 @@ const UsuarioPage = () => {
         Añadir Nuevo Usuario
       </button>
 
+      {/* Muestra mensajes de carga o error general */}
       {cargando && <p>Cargando usuarios...</p>}
-      {error && <div className="alert alert-danger" role="alert">{error}</div>} 
+      {error && !showModal && <div className="alert alert-danger" role="alert">{error}</div>} 
 
+      {/* Tabla de usuarios si no está cargando y no hay errores generales */}
       {!cargando && !error && (
         usuarios.length > 0 ? ( 
           <table className="table table-bordered table-hover">
@@ -203,8 +225,7 @@ const UsuarioPage = () => {
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Correo</th>
-                <th>Tipo de Usuario</th>
-                <th>Rol</th> {/* Columna ahora se llama "Rol" */}
+                <th>Rol</th> 
                 <th>Fecha de Creación</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -212,15 +233,13 @@ const UsuarioPage = () => {
             </thead>
             <tbody>
               {usuarios.map((usuario) => {
-                // Buscar el nombre del rol usando el id_rol del usuario
-                // Si usuario.id_rol es null o 0, find devolverá undefined, y 'N/A' será el fallback
+                // Busca el nombre del rol usando el id_rol del usuario
                 const rolNombre = roles.find(rol => rol.id_rol === usuario.id_rol)?.nombre_rol || 'N/A';
                 return (
                   <tr key={usuario.id_usuario}>
                     <td>{usuario.id_usuario}</td>
                     <td>{usuario.nombre}</td>
                     <td>{usuario.correo}</td>
-                    <td>{usuario.tipo_usuario}</td> {/* Muestra el tipo_usuario que viene de la API */}
                     <td>{rolNombre}</td> {/* Muestra el nombre del rol basado en la lista de roles */}
                     <td>{new Date(usuario.fecha_creacion).toLocaleDateString()}</td>
                     <td>{usuario.estado}</td>
@@ -272,6 +291,7 @@ const UsuarioPage = () => {
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
+                  {/* Aquí mostramos el error específico del formulario dentro del modal */}
                   {error && <div className="alert alert-danger">{error}</div>} 
                   <div className="mb-3">
                     <label htmlFor="nombre" className="form-label">Nombre</label>
@@ -311,27 +331,6 @@ const UsuarioPage = () => {
                     {!isEditing && <div className="form-text">La contraseña es requerida para nuevos usuarios.</div>}
                     {isEditing && <div className="form-text">Deja en blanco para no cambiar la contraseña.</div>}
                   </div>
-                  {/* Campo de selección para "Tipo Usuario" */}
-                  <div className="mb-3">
-                    <label htmlFor="tipo_usuario" className="form-label">Tipo de Usuario</label>
-                    <select 
-                      className="form-select" 
-                      id="tipo_usuario" 
-                      name="tipo_usuario" 
-                      value={currentUsuario.tipo_usuario} 
-                      onChange={handleFormChange} 
-                      required
-                    >
-                      <option value="">Selecciona un tipo</option> 
-                      {roles.map((rol) => (
-                        <option key={rol.id_rol} value={rol.id_rol}>
-                          {rol.nombre_rol}
-                         
-                        </option>
-                        
-                      ))}
-                    </select>
-                  </div>
                   
                   {/* Campo de selección para "Rol de Usuario" */}
                   <div className="mb-3">
@@ -349,7 +348,6 @@ const UsuarioPage = () => {
                         <option key={rol.id_rol} value={rol.id_rol}>
                           {rol.nombre_rol}
                         </option>
-                        
                       ))}
                     </select>
                   </div>
