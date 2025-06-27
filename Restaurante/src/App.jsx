@@ -11,6 +11,7 @@ import RolPage from './components/rol/RolPage';
 import HistoriaPedidoPage from './components/historial_pedido/HistorialPedidoPage';
 import HistorialInventarioPage from './components/historial_inventario/HistorialInventarioPage';
 import ReservacionPage from './components/reservacion/ReservacionPage';
+import ClientePage from './components/cliente/ClientePage';
 
 function App() {
   const location = useLocation();
@@ -37,6 +38,14 @@ function App() {
             >
               Usuarios
             </NavLink>
+
+            <NavLink
+              to="/cliente"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/cliente') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Clientes
+            </NavLink>
+
             <NavLink
               to="/categoria"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/categoria') ? 'bg-secondary' : 'bg-primary text-white'}`}
@@ -90,6 +99,7 @@ function App() {
               <Route path="/rol" element={<RolPage />} />
               <Route path="/historial_pedido" element={<HistoriaPedidoPage />} />
               <Route path="/historial_inventario" element={<HistorialInventarioPage />} />
+              <Route path="/cliente" element={<ClientePage />} />
             </Routes>
           </div>
         </div>
@@ -126,6 +136,14 @@ function App() {
             >
               Usuarios
             </NavLink>
+
+            <NavLink
+              to="/cliente"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/cliente') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Clientes
+            </NavLink>
+
             <NavLink
               to="/categoria"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/categoria') ? 'bg-secondary' : 'bg-primary text-white'}`}
