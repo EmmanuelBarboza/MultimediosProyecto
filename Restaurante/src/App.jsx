@@ -12,6 +12,7 @@ import HistoriaPedidoPage from './components/historial_pedido/HistorialPedidoPag
 import HistorialInventarioPage from './components/historial_inventario/HistorialInventarioPage';
 import ReservacionPage from './components/reservacion/ReservacionPage';
 import ClientePage from './components/cliente/ClientePage';
+import MesaPage from './components/mesa/MesaPage';
 
 function App() {
   const location = useLocation();
@@ -44,6 +45,13 @@ function App() {
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/cliente') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Clientes
+            </NavLink>
+
+            <NavLink
+              to="/mesa"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/mesa') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Mesas
             </NavLink>
 
             <NavLink
@@ -100,6 +108,7 @@ function App() {
               <Route path="/historial_pedido" element={<HistoriaPedidoPage />} />
               <Route path="/historial_inventario" element={<HistorialInventarioPage />} />
               <Route path="/cliente" element={<ClientePage />} />
+              <Route path="/mesa" element={<MesaPage />} />
             </Routes>
           </div>
         </div>
@@ -142,6 +151,13 @@ function App() {
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/cliente') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Clientes
+            </NavLink>
+
+            <NavLink
+              to="/mesa"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/mesa') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Mesas
             </NavLink>
 
             <NavLink
