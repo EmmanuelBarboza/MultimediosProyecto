@@ -1,19 +1,25 @@
 import axios from 'axios';
-const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';//cambiarlo segun donde tengan guardado el proyecto
-const obtenerAPI = 'ingredientes.php';
-const agregarAPI = 'ingredientes_insertar.php';
-const actualizarAPI = 'ingredientes_actualizar.php';
-const eliminarAPI = 'ingredientes_eliminar.php';
 
-export const obtenerIngredientes = () => axios.get(`${API_URL}${obtenerAPI}`);
+const API_URL = 'http://localhost/Grupo3_Multimedios/vista/API/';
+const ingredienteEndpoint = 'ingredientes.php';
 
-export const agregarIngrediente = (datos) =>
-  axios.post(`${API_URL}${agregarAPI}`, datos);
+export const obtenerIngredientes = () => {
+    return axios.get(`${API_URL}${ingredienteEndpoint}`);
+};
 
-export const actualizarIngrediente = (datos) =>
-  axios.post(`${API_URL}${actualizarAPI}`, datos);
+export const obtenerIngredientePorId = (id_ingrediente) => {
+    return axios.get(`${API_URL}${ingredienteEndpoint}?id_ingrediente=${id_ingrediente}`);
+};
 
-export const eliminarIngrediente = (id) =>
-  axios.post(`${API_URL}${eliminarAPI}`, { id_ingrediente: id });
+export const agregarIngrediente = (datos) => {
+    return axios.post(`${API_URL}${ingredienteEndpoint}`, datos);
+};
 
+export const actualizarIngrediente = (datos) => {
+    console.log(`Actualizando ingrediente con ID: ${datos.id_ingrediente}`, datos);
+    return axios.put(`${API_URL}${ingredienteEndpoint}?id_ingrediente=${datos.id_ingrediente}`, datos);
+};
 
+export const eliminarIngrediente = (id_ingrediente) => {
+    return axios.delete(`${API_URL}${ingredienteEndpoint}?id_ingrediente=${id_ingrediente}`);
+};

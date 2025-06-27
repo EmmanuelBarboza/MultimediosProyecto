@@ -10,6 +10,7 @@ import PlatilloPage from './components/platillo/PlatilloPage';
 import RolPage from './components/rol/RolPage';
 import HistoriaPedidoPage from './components/historial_pedido/HistorialPedidoPage';
 import HistorialInventarioPage from './components/historial_inventario/HistorialInventarioPage';
+import ReservacionPage from './components/reservacion/ReservacionPage';
 
 function App() {
   const location = useLocation();
@@ -24,6 +25,12 @@ function App() {
             <h3 className="font-weight-bold text-uppercase text-shadow">Sabores del Chef</h3>
           </div>
           <nav className="nav flex-column">
+            <NavLink
+              to="/reservacion"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/reservacion') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Reservaciones
+            </NavLink>
             <NavLink
               to="/usuario"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/usuario') ? 'bg-secondary' : 'bg-primary text-white'}`}
@@ -75,6 +82,7 @@ function App() {
         <div className="col-12 col-md-9 col-lg-10 p-4">
           <div className="rounded shadow-lg p-4" style={{ backgroundColor: '#f8f9fa' }}>
             <Routes>
+              <Route path="/reservacion" element={<ReservacionPage />} />
               <Route path="/usuario" element={<UsuarioPage />} />
               <Route path="/categoria" element={<CategoriaPage />} />
               <Route path="/ingrediente" element={<IngredientePage />} />
@@ -106,6 +114,12 @@ function App() {
         </div>
         <div className="offcanvas-body">
           <nav className="nav flex-column">
+            <NavLink
+              to="/reservacion"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/reservacion') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Reservaciones
+            </NavLink>
             <NavLink
               to="/usuario"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/usuario') ? 'bg-secondary' : 'bg-primary text-white'}`}
