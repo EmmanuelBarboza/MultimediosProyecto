@@ -22,15 +22,23 @@ const IngredientePage = () => {
         unidad: ''
     });
 
+    // Función para extraer el mensaje de error de la API o del sistema
+    const getApiError = (err, defaultMsg) => {
+        if (err.response?.data?.mensaje) return err.response.data.mensaje;
+        if (err.response?.data?.message) return err.response.data.message;
+        if (err.message) return err.message;
+        return defaultMsg;
+    };
+
     const cargarIngredientes = async () => {
         setCargando(true);
         setError(null);
         try {
             const { data } = await obtenerIngredientes();
             setIngredientes(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Error al cargar ingredientes:', error);
-            setError('No se pudieron cargar los ingredientes. Intenta de nuevo más tarde.');
+        } catch (err) {
+            console.error('Error al cargar ingredientes:', err);
+            setError(getApiError(err, 'No se pudieron cargar los ingredientes. Intenta de nuevo más tarde.'));
             setIngredientes([]);
         } finally {
             setCargando(false);
@@ -54,14 +62,12 @@ const IngredientePage = () => {
     };
 
     const handleEditIngrediente = async (id) => {
+        setError(null);
         try {
             const { data } = await obtenerIngredientePorId(id);
-            console.log('Datos recibidos para edición:', data);
-
             if (!data || typeof data !== 'object') {
                 throw new Error('Datos de ingrediente no válidos');
             }
-
             setCurrentIngrediente({
                 id_ingrediente: data.id_ingrediente,
                 nombre_ingrediente: data.nombre_ingrediente,
@@ -69,12 +75,11 @@ const IngredientePage = () => {
                 cantidad_stock: data.cantidad_stock,
                 unidad: data.unidad
             });
-
             setIsEditing(true);
             setShowModal(true);
-        } catch (error) {
-            console.error('Error al cargar ingrediente:', error);
-            setError('No se pudo cargar el ingrediente para editar: ' + error.message);
+        } catch (err) {
+            console.error('Error al cargar ingrediente:', err);
+            setError(getApiError(err, 'No se pudo cargar el ingrediente para editar.'));
         }
     };
 
@@ -100,20 +105,21 @@ const IngredientePage = () => {
             }
             handleCloseModal();
             await cargarIngredientes();
-        } catch (error) {
-            console.error('Error al guardar ingrediente:', error);
-            setError(error.response?.data?.message || 'Error al guardar el ingrediente');
+        } catch (err) {
+            console.error('Error al guardar ingrediente:', err);
+            setError(getApiError(err, 'Error al guardar el ingrediente'));
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('¿Estás seguro de eliminar este ingrediente?')) {
+            setError(null);
             try {
                 await eliminarIngrediente(id);
                 await cargarIngredientes();
-            } catch (error) {
-                console.error('Error al eliminar ingrediente:', error);
-                setError('Error al eliminar el ingrediente');
+            } catch (err) {
+                console.error('Error al eliminar ingrediente:', err);
+                setError(getApiError(err, 'Error al eliminar el ingrediente'));
             }
         }
     };
@@ -126,6 +132,11 @@ const IngredientePage = () => {
                 Añadir Nuevo Ingrediente
             </button>
 
+            {/* Mensaje de error general, pero NO oculta la tabla */}
+            {error && (
+                <div className="alert alert-danger">{error}</div>
+            )}
+
             {cargando && (
                 <div className="text-center">
                     <div className="spinner-border text-primary" role="status">
@@ -135,55 +146,52 @@ const IngredientePage = () => {
                 </div>
             )}
 
-            {error && <div className="alert alert-danger">{error}</div>}
-
-            {!cargando && !error && (
-                <div className="table-responsive">
-                    <table className="table table-bordered table-striped">
-                        <thead className="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Stock</th>
-                                <th>Unidad</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {ingredientes.length > 0 ? (
-                                ingredientes.map((ingrediente) => (
-                                    <tr key={ingrediente.id_ingrediente}>
-                                        <td>{ingrediente.id_ingrediente}</td>
-                                        <td>{ingrediente.nombre_ingrediente}</td>
-                                        <td>{ingrediente.descripcion}</td>
-                                        <td>{ingrediente.cantidad_stock}</td>
-                                        <td>{ingrediente.unidad}</td>
-                                        <td>
-                                            <button
-                                                className="btn btn-warning btn-sm me-2"
-                                                onClick={() => handleEditIngrediente(ingrediente.id_ingrediente)}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => handleDelete(ingrediente.id_ingrediente)}
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="6" className="text-center">No hay ingredientes registrados</td>
+            {/* La tabla siempre se muestra aunque haya error */}
+            <div className="table-responsive">
+                <table className="table table-bordered table-striped">
+                    <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Stock</th>
+                            <th>Unidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {ingredientes.length > 0 ? (
+                            ingredientes.map((ingrediente) => (
+                                <tr key={ingrediente.id_ingrediente}>
+                                    <td>{ingrediente.id_ingrediente}</td>
+                                    <td>{ingrediente.nombre_ingrediente}</td>
+                                    <td>{ingrediente.descripcion}</td>
+                                    <td>{ingrediente.cantidad_stock}</td>
+                                    <td>{ingrediente.unidad}</td>
+                                    <td>
+                                        <button
+                                            className="btn btn-warning btn-sm me-2"
+                                            onClick={() => handleEditIngrediente(ingrediente.id_ingrediente)}
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => handleDelete(ingrediente.id_ingrediente)}
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </td>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="text-center">No hay ingredientes registrados</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             {showModal && (
                 <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
@@ -195,6 +203,7 @@ const IngredientePage = () => {
                             </div>
                             <form onSubmit={handleSubmit}>
                                 <div className="modal-body">
+                                    {/* Mensaje de error específico del modal */}
                                     {error && <div className="alert alert-danger">{error}</div>}
 
                                     <div className="row">

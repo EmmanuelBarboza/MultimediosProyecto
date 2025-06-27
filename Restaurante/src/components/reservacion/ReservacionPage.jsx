@@ -7,7 +7,6 @@ import {
     obtenerReservacionPorId
 } from '../../services/reservacionService';
 
-// Definimos constantes para los estados que coinciden con el ENUM de la base de datos
 const ESTADOS = {
   ACTIVA: 'activa',
   COMPLETADA: 'completada',
@@ -18,6 +17,7 @@ const ReservacionPage = () => {
     const [reservaciones, setReservaciones] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
+    const [errors, setErrors] = useState({});
 
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -52,6 +52,7 @@ const ReservacionPage = () => {
 
     const handleAddReservacion = () => {
         setIsEditing(false);
+        setErrors({});
         setCurrentReservacion({
             id_reservacion: null,
             cliente_id: '',
@@ -67,11 +68,7 @@ const ReservacionPage = () => {
     const handleEditReservacion = async (id) => {
         try {
             const { data } = await obtenerReservacionPorId(id);
-            console.log('Datos recibidos para edición:', data);
-
-            if (!data || typeof data !== 'object') {
-                throw new Error('Datos de reservación no válidos');
-            }
+            if (!data || typeof data !== 'object') throw new Error('Datos de reservación no válidos');
 
             setCurrentReservacion({
                 id_reservacion: data.id_reservacion,
@@ -83,6 +80,7 @@ const ReservacionPage = () => {
                 estado: data.estado || ESTADOS.ACTIVA
             });
 
+            setErrors({});
             setIsEditing(true);
             setShowModal(true);
         } catch (error) {
@@ -94,19 +92,30 @@ const ReservacionPage = () => {
     const handleCloseModal = () => {
         setShowModal(false);
         setError(null);
+        setErrors({});
     };
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         setCurrentReservacion(prev => ({ ...prev, [name]: value }));
+        setErrors(prev => ({ ...prev, [name]: null })); // Limpia el error del campo modificado
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
-        if (!currentReservacion.estado) {
-            setError('Por favor seleccione un estado válido');
+        const newErrors = {};
+
+        if (!currentReservacion.cliente_id) newErrors.cliente_id = 'Este campo es requerido';
+        if (!currentReservacion.mesa_id) newErrors.mesa_id = 'Este campo es requerido';
+        if (!currentReservacion.fecha_reserva) newErrors.fecha_reserva = 'Este campo es requerido';
+        if (!currentReservacion.hora_reserva) newErrors.hora_reserva = 'Este campo es requerido';
+        if (!currentReservacion.cantidad_personas) newErrors.cantidad_personas = 'Este campo es requerido';
+        if (!currentReservacion.estado) newErrors.estado = 'Debe seleccionar un estado';
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
 
@@ -172,43 +181,35 @@ const ReservacionPage = () => {
                         </thead>
                         <tbody>
                             {reservaciones.length > 0 ? (
-                                reservaciones.map((reservacion) => (
-                                    <tr key={reservacion.id_reservacion}>
-                                        <td>{reservacion.id_reservacion}</td>
-                                        <td>{reservacion.cliente_id}</td>
-                                        <td>{reservacion.mesa_id}</td>
-                                        <td>{new Date(reservacion.fecha_reserva).toLocaleDateString()}</td>
-                                        <td>{reservacion.hora_reserva}</td>
-                                        <td>{reservacion.cantidad_personas}</td>
+                                reservaciones.map((r) => (
+                                    <tr key={r.id_reservacion}>
+                                        <td>{r.id_reservacion}</td>
+                                        <td>{r.cliente_id}</td>
+                                        <td>{r.mesa_id}</td>
+                                        <td>{new Date(r.fecha_reserva).toLocaleDateString()}</td>
+                                        <td>{r.hora_reserva}</td>
+                                        <td>{r.cantidad_personas}</td>
                                         <td>
                                             <span className={`badge ${
-                                                reservacion.estado === ESTADOS.ACTIVA ? 'bg-primary' : 
-                                                reservacion.estado === ESTADOS.COMPLETADA ? 'bg-success' : 
+                                                r.estado === ESTADOS.ACTIVA ? 'bg-primary' :
+                                                r.estado === ESTADOS.COMPLETADA ? 'bg-success' :
                                                 'bg-danger'
                                             }`}>
-                                                {reservacion.estado}
+                                                {r.estado}
                                             </span>
                                         </td>
                                         <td>
-                                            <button
-                                                className="btn btn-warning btn-sm me-2"
-                                                onClick={() => handleEditReservacion(reservacion.id_reservacion)}
-                                            >
+                                            <button className="btn btn-warning btn-sm me-2" onClick={() => handleEditReservacion(r.id_reservacion)}>
                                                 Editar
                                             </button>
-                                            <button
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => handleDelete(reservacion.id_reservacion)}
-                                            >
+                                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.id_reservacion)}>
                                                 Eliminar
                                             </button>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
-                                <tr>
-                                    <td colSpan="8" className="text-center">No hay reservaciones registradas</td>
-                                </tr>
+                                <tr><td colSpan="8" className="text-center">No hay reservaciones registradas</td></tr>
                             )}
                         </tbody>
                     </table>
@@ -232,26 +233,28 @@ const ReservacionPage = () => {
                                             <label className="form-label">ID Cliente</label>
                                             <input
                                                 type="number"
-                                                className="form-control"
+                                                className={`form-control ${errors.cliente_id ? 'is-invalid' : ''}`}
                                                 name="cliente_id"
                                                 value={currentReservacion.cliente_id}
                                                 onChange={handleFormChange}
-                                                required
                                                 min="1"
+                                                disabled={isEditing} // <-- Deshabilita en edición
                                             />
+                                            {errors.cliente_id && <div className="invalid-feedback">{errors.cliente_id}</div>}
                                         </div>
 
                                         <div className="col-md-6 mb-3">
                                             <label className="form-label">ID Mesa</label>
                                             <input
                                                 type="number"
-                                                className="form-control"
+                                                className={`form-control ${errors.mesa_id ? 'is-invalid' : ''}`}
                                                 name="mesa_id"
                                                 value={currentReservacion.mesa_id}
                                                 onChange={handleFormChange}
-                                                required
                                                 min="1"
+                                                disabled={isEditing} // <-- Deshabilita en edición
                                             />
+                                            {errors.mesa_id && <div className="invalid-feedback">{errors.mesa_id}</div>}
                                         </div>
                                     </div>
 
@@ -260,24 +263,24 @@ const ReservacionPage = () => {
                                             <label className="form-label">Fecha</label>
                                             <input
                                                 type="date"
-                                                className="form-control"
+                                                className={`form-control ${errors.fecha_reserva ? 'is-invalid' : ''}`}
                                                 name="fecha_reserva"
                                                 value={currentReservacion.fecha_reserva}
                                                 onChange={handleFormChange}
-                                                required
                                             />
+                                            {errors.fecha_reserva && <div className="invalid-feedback">{errors.fecha_reserva}</div>}
                                         </div>
 
                                         <div className="col-md-6 mb-3">
                                             <label className="form-label">Hora</label>
                                             <input
                                                 type="time"
-                                                className="form-control"
+                                                className={`form-control ${errors.hora_reserva ? 'is-invalid' : ''}`}
                                                 name="hora_reserva"
                                                 value={currentReservacion.hora_reserva}
                                                 onChange={handleFormChange}
-                                                required
                                             />
+                                            {errors.hora_reserva && <div className="invalid-feedback">{errors.hora_reserva}</div>}
                                         </div>
                                     </div>
 
@@ -286,29 +289,29 @@ const ReservacionPage = () => {
                                             <label className="form-label">Cantidad de Personas</label>
                                             <input
                                                 type="number"
-                                                className="form-control"
+                                                className={`form-control ${errors.cantidad_personas ? 'is-invalid' : ''}`}
                                                 name="cantidad_personas"
                                                 value={currentReservacion.cantidad_personas}
                                                 onChange={handleFormChange}
-                                                required
                                                 min="1"
                                             />
+                                            {errors.cantidad_personas && <div className="invalid-feedback">{errors.cantidad_personas}</div>}
                                         </div>
 
                                         <div className="col-md-6 mb-3">
                                             <label className="form-label">Estado</label>
                                             <select
-                                                className="form-select"
+                                                className={`form-select ${errors.estado ? 'is-invalid' : ''}`}
                                                 name="estado"
                                                 value={currentReservacion.estado}
                                                 onChange={handleFormChange}
-                                                required
                                             >
                                                 <option value="">Seleccione un estado</option>
                                                 <option value={ESTADOS.ACTIVA}>Activa</option>
                                                 <option value={ESTADOS.COMPLETADA}>Completada</option>
                                                 <option value={ESTADOS.CANCELADA}>Cancelada</option>
                                             </select>
+                                            {errors.estado && <div className="invalid-feedback">{errors.estado}</div>}
                                         </div>
                                     </div>
                                 </div>
