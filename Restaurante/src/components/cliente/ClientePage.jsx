@@ -6,6 +6,7 @@ import {
     eliminarCliente,
     obtenerClientePorId
 } from '../../services/clienteService';
+
 const ClientePage = () => {
     const [clientes, setClientes] = useState([]);
     const [cargando, setCargando] = useState(true);
@@ -23,6 +24,14 @@ const ClientePage = () => {
         estado: ''
     });
 
+    // ✅ NUEVA FUNCIÓN PARA MANEJAR ERRORES
+    const getApiError = (err, defaultMsg) => {
+        if (err.response?.data?.mensaje) return err.response.data.mensaje;
+        if (err.response?.data?.message) return err.response.data.message;
+        if (err.message) return err.message;
+        return defaultMsg;
+    };
+
     const cargarClientes = async () => {
         setCargando(true);
         setError(null);
@@ -31,7 +40,7 @@ const ClientePage = () => {
             setClientes(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error al cargar clientes:', error);
-            setError('No se pudieron cargar los clientes. Intenta de nuevo más tarde.');
+            setError(getApiError(error, 'No se pudieron cargar los clientes. Intenta de nuevo más tarde.'));
             setClientes([]);
         } finally {
             setCargando(false);
@@ -59,8 +68,6 @@ const ClientePage = () => {
     const handleEditCliente = async (id) => {
         try {
             const { data } = await obtenerClientePorId(id);
-            console.log('Datos recibidos para edición:', data);
-
             if (!data || typeof data !== 'object') {
                 throw new Error('Datos de cliente no válidos');
             }
@@ -79,7 +86,7 @@ const ClientePage = () => {
             setShowModal(true);
         } catch (error) {
             console.error('Error al cargar cliente:', error);
-            setError('No se pudo cargar el cliente para editar: ' + error.message);
+            setError(getApiError(error, 'No se pudo cargar el cliente para editar.'));
         }
     };
 
@@ -107,7 +114,7 @@ const ClientePage = () => {
             await cargarClientes();
         } catch (error) {
             console.error('Error al guardar cliente:', error);
-            setError(error.response?.data?.message || 'Error al guardar el cliente');
+            setError(getApiError(error, 'Error al guardar el cliente'));
         }
     };
 
@@ -118,7 +125,7 @@ const ClientePage = () => {
                 await cargarClientes();
             } catch (error) {
                 console.error('Error al eliminar cliente:', error);
-                setError('Error al eliminar el cliente');
+                setError(getApiError(error, 'Error al eliminar el cliente'));
             }
         }
     };
@@ -142,7 +149,7 @@ const ClientePage = () => {
 
             {error && <div className="alert alert-danger">{error}</div>}
 
-            {!cargando && !error && (
+            {!cargando && (
                 <div className="table-responsive">
                     <table className="table table-bordered table-striped">
                         <thead className="table-dark">
@@ -186,7 +193,7 @@ const ClientePage = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="text-center">No hay clientes registrados</td>
+                                    <td colSpan="8" className="text-center">No hay clientes registrados</td>
                                 </tr>
                             )}
                         </tbody>
@@ -222,7 +229,7 @@ const ClientePage = () => {
                                         <div className="col-md-6 mb-3">
                                             <label className="form-label">Teléfono</label>
                                             <input
-                                                type="text"
+                                                type="tel"
                                                 className="form-control"
                                                 name="telefono"
                                                 value={currentCliente.telefono}
@@ -292,7 +299,7 @@ const ClientePage = () => {
                                     <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>
                                         Cancelar
                                     </button>
-                                    <button type="submit" className="btn btn-primary">
+                                    <button type="submit" className="btn btn-primary" disabled={cargando}>
                                         {isEditing ? 'Guardar Cambios' : 'Añadir Cliente'}
                                     </button>
                                 </div>
@@ -301,7 +308,6 @@ const ClientePage = () => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };
