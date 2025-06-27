@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
-
+import Logo from './assets/Logo.png';
 // Importar los componentes de página
 import UsuarioPage from './components/usuario/UsuarioPage';
 import CategoriaPage from './components/categoria/CategoriaPage';
@@ -22,9 +22,10 @@ function App() {
     <div className="container-fluid">
       <div className="row">
         {/* Sidebar de navegación */}
-        <div className="col-12 col-md-3 col-lg-2 bg-primary text-white p-3 shadow-lg border-right" style={{ minHeight: '100vh' }}>
+        <div className="col-12 col-md-3 col-lg-2" style={{ backgroundColor: '#fff8e4', color: '#4E342E', minHeight: '100vh' }} /* Café claro/crema */>
           <div className="mb-4 text-center">
-            <h3 className="font-weight-bold text-uppercase text-shadow">Sabores del Chef</h3>
+            <img src={Logo} alt="Logo" style={{ width: '200px', marginBottom: '10px' }} />
+            
           </div>
           <nav className="nav flex-column">
             <NavLink
@@ -86,7 +87,7 @@ function App() {
               Historial de Pedidos
             </NavLink>
 
-             <NavLink
+            <NavLink
               to="/historial_inventario"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_inventario') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
@@ -192,7 +193,7 @@ function App() {
               Historial de Pedidos
             </NavLink>
 
-             <NavLink
+            <NavLink
               to="/historial_inventario"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_inventario') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
