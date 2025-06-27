@@ -98,7 +98,7 @@ const ReservacionPage = () => {
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         setCurrentReservacion(prev => ({ ...prev, [name]: value }));
-        setErrors(prev => ({ ...prev, [name]: null })); // Limpia el error del campo modificado
+        setErrors(prev => ({ ...prev, [name]: null })); 
     };
 
     const handleSubmit = async (e) => {
@@ -238,7 +238,7 @@ const ReservacionPage = () => {
                                                 value={currentReservacion.cliente_id}
                                                 onChange={handleFormChange}
                                                 min="1"
-                                                disabled={isEditing} // <-- Deshabilita en edición
+                                                disabled={isEditing} 
                                             />
                                             {errors.cliente_id && <div className="invalid-feedback">{errors.cliente_id}</div>}
                                         </div>
@@ -252,7 +252,7 @@ const ReservacionPage = () => {
                                                 value={currentReservacion.mesa_id}
                                                 onChange={handleFormChange}
                                                 min="1"
-                                                disabled={isEditing} // <-- Deshabilita en edición
+                                                disabled={isEditing} 
                                             />
                                             {errors.mesa_id && <div className="invalid-feedback">{errors.mesa_id}</div>}
                                         </div>

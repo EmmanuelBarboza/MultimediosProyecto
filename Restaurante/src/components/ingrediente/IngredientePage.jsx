@@ -22,7 +22,7 @@ const IngredientePage = () => {
         unidad: ''
     });
 
-    // Función para extraer el mensaje de error de la API o del sistema
+  
     const getApiError = (err, defaultMsg) => {
         if (err.response?.data?.mensaje) return err.response.data.mensaje;
         if (err.response?.data?.message) return err.response.data.message;
@@ -132,7 +132,7 @@ const IngredientePage = () => {
                 Añadir Nuevo Ingrediente
             </button>
 
-            {/* Mensaje de error general, pero NO oculta la tabla */}
+            {/* Mensaje de error general */}
             {error && (
                 <div className="alert alert-danger">{error}</div>
             )}
