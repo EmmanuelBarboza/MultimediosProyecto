@@ -13,6 +13,7 @@ import HistorialInventarioPage from './components/historial_inventario/Historial
 import ReservacionPage from './components/reservacion/ReservacionPage';
 import ClientePage from './components/cliente/ClientePage';
 import MesaPage from './components/mesa/MesaPage';
+import PedidosPage from './components/pedido/PedidosPage';
 
 function App() {
   const location = useLocation();
@@ -29,6 +30,12 @@ function App() {
           </div>
           <nav className="nav flex-column">
             <NavLink
+              to="/pedidos"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/pedidos') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Pedidos
+            </NavLink>
+            <NavLink
               to="/reservacion"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/reservacion') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
@@ -40,21 +47,18 @@ function App() {
             >
               Usuarios
             </NavLink>
-
             <NavLink
               to="/cliente"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/cliente') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Clientes
             </NavLink>
-
             <NavLink
               to="/mesa"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/mesa') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Mesas
             </NavLink>
-
             <NavLink
               to="/categoria"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/categoria') ? 'bg-secondary' : 'bg-primary text-white'}`}
@@ -79,14 +83,12 @@ function App() {
             >
               Roles
             </NavLink>
-
             <NavLink
               to="/historial_pedido"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_pedido') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Historial de Pedidos
             </NavLink>
-
             <NavLink
               to="/historial_inventario"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_inventario') ? 'bg-secondary' : 'bg-primary text-white'}`}
@@ -100,6 +102,7 @@ function App() {
         <div className="col-12 col-md-9 col-lg-10 p-4">
           <div className="rounded shadow-lg p-4" style={{ backgroundColor: '#f8f9fa' }}>
             <Routes>
+              <Route path="/pedidos" element={<PedidosPage />} />
               <Route path="/reservacion" element={<ReservacionPage />} />
               <Route path="/usuario" element={<UsuarioPage />} />
               <Route path="/categoria" element={<CategoriaPage />} />
@@ -135,6 +138,12 @@ function App() {
         <div className="offcanvas-body">
           <nav className="nav flex-column">
             <NavLink
+              to="/pedidos"
+              className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/pedidos') ? 'bg-secondary' : 'bg-primary text-white'}`}
+            >
+              Pedidos
+            </NavLink>
+            <NavLink
               to="/reservacion"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/reservacion') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
@@ -146,21 +155,18 @@ function App() {
             >
               Usuarios
             </NavLink>
-
             <NavLink
               to="/cliente"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/cliente') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Clientes
             </NavLink>
-
             <NavLink
               to="/mesa"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/mesa') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Mesas
             </NavLink>
-
             <NavLink
               to="/categoria"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/categoria') ? 'bg-secondary' : 'bg-primary text-white'}`}
@@ -185,14 +191,12 @@ function App() {
             >
               Roles
             </NavLink>
-
             <NavLink
               to="/historial_pedido"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_pedido') ? 'bg-secondary' : 'bg-primary text-white'}`}
             >
               Historial de Pedidos
             </NavLink>
-
             <NavLink
               to="/historial_inventario"
               className={`nav-link p-3 mb-2 rounded ${isActiveRoute('/historial_inventario') ? 'bg-secondary' : 'bg-primary text-white'}`}
