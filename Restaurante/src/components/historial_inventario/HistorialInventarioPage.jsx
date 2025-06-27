@@ -8,7 +8,7 @@ import {
 
 const HistorialInventarioPage = () => {
 
-  const [historialI, setHistorialInventarios] = useState([]);
+    const [historialI, setHistorialInventarios] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
   
@@ -31,6 +31,20 @@ const HistorialInventarioPage = () => {
       cargarHistorialInventarios();
        }, []);
   
+      const handleDeleteHistorialI = async (id) => {
+        if (window.confirm('¿Estás seguro de eliminar este historial de inventario?')) {
+          try {
+            await eliminarHistorialInv(id);
+            cargarHistorialInventarios();
+            console.log(id);
+          } catch (error) {
+            console.log(id);
+            console.error('Error al eliminar historial de este pedido:', error);
+            setError('Error al eliminar el historial de este pedido');
+          }
+        }
+      };
+
       return (
         <div className="container"> 
           <h4>Lista de Historial de Inventarios</h4>
@@ -70,7 +84,7 @@ const HistorialInventarioPage = () => {
                     <td>
                       <button 
                         className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(historial.id_historial_inventario)}
+                        onClick={() => handleDeleteHistorialI(historial.id_historial_inventario)}
                       >
                         Eliminar
                       </button>

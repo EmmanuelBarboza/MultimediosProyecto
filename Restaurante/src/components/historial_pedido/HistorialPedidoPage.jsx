@@ -95,13 +95,15 @@ const HistorialPedidoPage = () => {
         }
       };
     
-      // Manejador para eliminar platillo
-      const handleDelete = async (id) => {
+      // Manejador para eliminar Historial
+      const handleDeleteHistorialP = async (id) => {
         if (window.confirm('¿Estás seguro de eliminar el historial de este pedido?')) {
           try {
             await eliminarHistorialPed(id);
             cargarHistorialPedidos();
+            console.log(id);
           } catch (error) {
+            console.log(id);
             console.error('Error al eliminar historial de este pedido:', error);
             setError('Error al eliminar el historial de este pedido');
           }
@@ -143,7 +145,7 @@ const HistorialPedidoPage = () => {
                     </button>
                     <button 
                       className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(historial.id_historial_pedido)}
+                      onClick={() => handleDeleteHistorialP(historial.id_historial_pedido)}
                     >
                       Eliminar
                     </button>
